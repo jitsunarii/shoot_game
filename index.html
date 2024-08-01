@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas {
+            background: #eee;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="480" height="320"></canvas>
+    <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            //要素の参照
+            const canvas = $("#myCanvas").get(0);
+            //2D描画コンテキスト=キャンバスに描画するために使うツール
+            const ctx = canvas.getContext("2d");
+            //画面上の図形の定義
+            // プレイヤーのキャラ定義
+            //プレイヤーの幅
+            const playerWidth = 70;
+            //プレイヤーの高さ
+            const playerHeight = 30;
+            // プレイヤーの初期位置
+            let playerX = (canvas.width - playerWidth) / 2;
+            //敵キャラ定義
+            //敵キャラ半径
+            const enemyRadius = 20;
+            // 敵キャラの中心x座標
+            let x = canvas.width / 2;
+            // 敵キャラの中心y座標
+            let y = -19;
+            //弾定義
+            const bulletRadius = 5
+            let bulletY = canvas.height - playerHeight + bulletRadius;
+
+            let rightPressed = false;
+            let leftPressed = false;
+            //キーを押した時
+            $(document).keydown(keyDownHandler);
+            $(document).keyup(keyUpHandler);
+            // $(document).fire()
+            function keyDownHandler(e) {
+                if (e.key === "Right" || e.key === "ArrowRight") {
+                    rightPressed = true;
+                } else if (e.key === "Left" || e.key === "ArrowLeft") {
+                    leftPressed = true;
+                }
+            }
+            function keyUpHandler(e) {
+                if (e.key === "Right" || e.key === "ArrowRight") {
+                    rightPressed = false;
+                } else if (e.key === "Left" || e.key === "ArrowLeft") {
+                    leftPressed = false;
+                }
+            }
+
+
+            //プレイヤーのキャラ描画
+            function drawPlayer() {
+                ctx.beginPath();
+                ctx.rect(playerX, canvas.height - playerHeight, playerWidth, playerHeight);
+                ctx.fillStyle = "white";
+                ctx.fill();
+                ctx.closePath();
+            }
+            //敵キャラ描画
+            function drawEnemy() {
+                ctx.beginPath();
+                ctx.arc(x, y, enemyRadius, 0, Math.PI * 2);
+                ctx.fillStyle = "red";
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            //弾描画
+            function drawBullet() {
+                ctx.beginPath();
+                ctx.arc(playerX + (playerWidth / 2), bulletY, bulletRadius, 0, Math.PI * 2);
+                ctx.fillStyle = "white"
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawPlayer();
+                drawEnemy();
+                drawBullet();
+                y++;
+                bulletY--;
+                if (rightPressed && playerX < canvas.width - playerWidth) {
+                    playerX += 7;
+                } else if (leftPressed && playerX > 0) {
+                    playerX -= 7;
+                }
+
+            }
+            setInterval(draw, 10);
+
+
+            //飛ばす弾描画
+
+        });
+        //ゲーム終了時、オブジェクトにスコアを記録、keyはプレイヤー名
+        //敵に球がぶつかった時両方消える処理
+        //円同士の衝突→２つの円の中心距離＜２つの円の半径の和のとき
+        // dx=playerX + (playerWidth / 2)-x,dy=bulletY-y
+
+        // if (dx * dx + dy * dy < (enemyRadius + bulletRadius) * (enemyRadius + bulletRadius)) {
+
+
+    </script>
+</body>
+
+</html>

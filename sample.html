@@ -1,0 +1,81 @@
+// ============================================================================
+//
+// character.js
+//
+// 自機キャラクターのショットやエネミーキャラクターの挙動を管理するクラスを記述
+// したファイルです。このファイルには以下のクラスが含まれます。
+//
+// ・Characterクラス
+// ・CharacterShotクラス
+// ============================================================================
+
+// - character ----------------------------------------------------------------
+function Character(){
+this.position = new Point();
+this.size = 0;
+}
+
+Character.prototype.init = function(size){
+this.size = size;
+};
+
+
+// - character shot -----------------------------------------------------------
+function CharacterShot(){
+this.position = new Point();
+this.size = 0;
+this.speed = 0;
+this.alive = false;
+}
+
+CharacterShot.prototype.set = function(p, size, speed){
+// 座標をセット
+this.position.x = p.x;
+this.position.y = p.y;
+
+// サイズ、スピードをセット
+this.size = size;
+this.speed = speed;
+
+// 生存フラグを立てる
+this.alive = true;
+};
+
+CharacterShot.prototype.move = function(){
+// 座標を真上にspeed分だけ移動させる
+this.position.y -= this.speed;
+
+// 一定以上の座標に到達していたら生存フラグを降ろす
+if(this.position.y < -this.size){ this.alive=false; } };
+    //============================================================================// // common.js // //
+    汎用的なクラスの定義を記述したファイルです。 // このファイルには、以下のクラスが含まれます。 // // ・Pointクラス //
+    //============================================================================// - point
+    -------------------------------------------------------------------- function Point(){ this.x=0; this.y=0; }
+    //============================================================================// // main.js // //
+    メインルーチンを記述したファイルです。 // javascriptファイルのなかで一番最後に読み込まれ、onloadイベントによって動作を // 開始するように実装されています。 //
+    またイベント関連の処理もこのファイルに含まれています。 // //============================================================================// -
+    global ------------------------------------------------------------------- var screenCanvas, info; var run=true; var
+    fps=1000 / 30; var mouse=new Point(); var ctx; var fire=false; // - const
+    -------------------------------------------------------------------- var CHARA_COLOR='rgba(0, 0, 255, 0.75)' ; var
+    CHARA_SHOT_COLOR='rgba(0, 255, 0, 0.75)' ; var CHARA_SHOT_MAX_COUNT=10; // - main
+    --------------------------------------------------------------------- window.onload=function(){ // 汎用変数 var i; //
+    スクリーンの初期化 screenCanvas=document.getElementById('screen'); screenCanvas.width=256; screenCanvas.height=256; //
+    2dコンテキスト ctx=screenCanvas.getContext('2d'); // イベントの登録 screenCanvas.addEventListener('mousemove', mouseMove, true);
+    screenCanvas.addEventListener('mousedown', mouseDown, true); window.addEventListener('keydown', keyDown, true); //
+    その他のエレメント関連 info=document.getElementById('info'); // 自機初期化 var chara=new Character(); chara.init(10); // 自機ショット初期化
+    var charaShot=new Array(CHARA_SHOT_MAX_COUNT); for(i=0; i < CHARA_SHOT_MAX_COUNT; i++){ charaShot[i]=new
+    CharacterShot(); } // レンダリング処理を呼び出す (function(){ // HTMLを更新 info.innerHTML=mouse.x + ' : ' + mouse.y; // screenクリア
+    ctx.clearRect(0, 0, screenCanvas.width, screenCanvas.height); // パスの設定を開始 ctx.beginPath(); // 自機の位置を設定
+    chara.position.x=mouse.x; chara.position.y=mouse.y; // 自機を描くパスを設定 ctx.arc(chara.position.x, chara.position.y,
+    chara.size, 0, Math.PI * 2, false); // 自機の色を設定する ctx.fillStyle=CHARA_COLOR; // 自機を描く ctx.fill(); // fireフラグの値により分岐
+    if(fire){ // すべての自機ショットを調査する for(i=0; i < CHARA_SHOT_MAX_COUNT; i++){ // 自機ショットが既に発射されているかチェック
+    if(!charaShot[i].alive){ // 自機ショットを新規にセット charaShot[i].set(chara.position, 3, 5); // ループを抜ける break; } } //
+    フラグを降ろしておく fire=false; } // パスの設定を開始 ctx.beginPath(); // すべての自機ショットを調査する for(i=0; i < CHARA_SHOT_MAX_COUNT; i++){ //
+    自機ショットが既に発射されているかチェック if(charaShot[i].alive){ // 自機ショットを動かす charaShot[i].move(); // 自機ショットを描くパスを設定 ctx.arc(
+    charaShot[i].position.x, charaShot[i].position.y, charaShot[i].size, 0, Math.PI * 2, false ); // パスをいったん閉じる
+    ctx.closePath(); } } // 自機ショットの色を設定する ctx.fillStyle=CHARA_SHOT_COLOR; // 自機ショットを描く ctx.fill(); // フラグにより再帰呼び出し
+    if(run){setTimeout(arguments.callee, fps);} })(); }; // - event
+    -------------------------------------------------------------------- function mouseMove(event){ // マウスカーソル座標の更新
+    mouse.x=event.clientX - screenCanvas.offsetLeft; mouse.y=event.clientY - screenCanvas.offsetTop; } function
+    mouseDown(event){ // フラグを立てる fire=true; } function keyDown(event){ // キーコードを取得 var ck=event.keyCode; //
+    Escキーが押されていたらフラグを降ろす if(ck===27){run=false;} }
